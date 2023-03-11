@@ -9,10 +9,10 @@ async function bootstrap() {
       transport: Transport.NATS,
       options: {
         servers: ['nats://localhost:4222'],
-        queue: 'billing-queue'
-      },
-    },
+        queue: 'post-queue'
+      }
+    }
   );
-  app.listen();
+  await app.listen();
 }
 bootstrap();

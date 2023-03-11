@@ -1,22 +1,29 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { UserModule } from './user/user.module';
+import { AuthMiddleware } from './auth.middleware';
+import { UserController } from './user/user.controller';
+import { PostModule } from './post/post.module';
+import { PostController } from './post/post.controller';
 
 @Module({
   imports: [
-    ClientsModule.register([
-      {
-        name: 'BILLING_SERVICE',
-        transport: Transport.NATS,
-        options: {
-          servers: ['nats://localhost:4222'],
-          queue: 'billing-queue'
-        }
-      }
-    ])
+    UserModule,
+    PostModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer){
+    consumer
+      .apply(AuthMiddleware)
+      .exclude(
+        {path:'user/register', method: RequestMethod.ALL},
+        {path:'user/login', method: RequestMethod.ALL},
+        {path: 'post', method: RequestMethod.GET}
+      )
+      .forRoutes(UserController, PostController)
+  }
+}

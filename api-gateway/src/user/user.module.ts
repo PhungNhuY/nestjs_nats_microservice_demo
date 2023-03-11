@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { UserController } from './user.controller';
+import { UserService } from './user.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { TokenService } from 'src/token.service';
 
 @Module({
-  imports: [
+  imports:[
     ClientsModule.register([
       {
         name: 'AUTH_SERVICE',
@@ -16,7 +17,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       }
     ]),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [UserController],
+  providers: [UserService, TokenService],
+  exports: [TokenService]
 })
-export class AppModule {}
+export class UserModule {}
